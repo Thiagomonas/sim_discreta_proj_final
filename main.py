@@ -1,4 +1,5 @@
 import simpy
+import itertools
 from Aviao import Aviao
 from Aeroporto import Aeroporto
 
@@ -8,7 +9,14 @@ NUM_PISTAS_P = 2
 NUM_PISTAS_G = 1
 
 class Simulacao:
-    def __init__(self, env: simpy.Environment):
+    def __init__(
+        self,
+        env: simpy.Environment,
+        num_plataformas=NUM_PLATAFORMAS,
+        num_hangares=NUM_HANGARES,
+        num_pistas_p=NUM_PISTAS_P,
+        num_pistas_g=NUM_PISTAS_G,
+    ):       
         self.env = env
         self.recursos = Aeroporto(self.env, NUM_PLATAFORMAS, NUM_HANGARES, NUM_PISTAS_P, NUM_PISTAS_G)
         self.env.process(self.chegadas())
@@ -76,7 +84,59 @@ class Simulacao:
             yield self.env.timeout(aviao.tempo_hangar)
 
 
+
+
+def testar_cenarios():
+    import sys
+
+    sys.stdout = None
+
+    vars_p = [
+        NUM_PLATAFORMAS - 1,
+        NUM_PLATAFORMAS,
+        NUM_PLATAFORMAS + 1,
+        NUM_PLATAFORMAS + 2,
+    ]
+    vars_h = [
+        NUM_HANGARES - 1,
+        NUM_HANGARES,
+        NUM_HANGARES + 1,
+        NUM_HANGARES + 2,
+    ]
+    vars_pp = [
+        NUM_PISTAS_P - 1,
+        NUM_PISTAS_P,
+        NUM_PISTAS_P + 1,
+        NUM_PISTAS_P + 2,
+    ]
+    vars_pg = [
+        NUM_PISTAS_G,
+        NUM_PISTAS_G + 1,
+        NUM_PISTAS_G + 2,
+    ]
+
+    resultados = []
+    cenarios = list(itertools.product(vars_p, vars_h, vars_pp, vars_pg))
+
+    for p, h, pp, pg in cenarios:
+        env = simpy.Environment()
+        Simulacao(env, p, h, pp, pg)
+        env.run()
+
+        resultados.append((p, h, pp, pg, env.now))
+
+    resultados.sort(key=lambda x: x[4])
+
+    with open("resultados.csv", "w") as f:
+        f.write("plataformas,hangares,pistas_pequenas,pistas_grandes,tempo_total\n")
+        for p, h, pp, pg, t in resultados:
+            f.write(f"{p},{h},{pp},{pg},{t}\n")
+
+
+
 if __name__ == "__main__":
     env = simpy.Environment()
     sim = Simulacao(env)
     env.run()
+
+    testar_cenarios()
