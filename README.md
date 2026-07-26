@@ -1,5 +1,12 @@
 # Simulação Discreta - Projeto Final
 
+## **Membros**
+
+Thiago de Castro Sant'Anna  
+Carlos Vitor Cardoso da Silva  
+Virgilio Cardoso Dantas Neto  
+João Pedro Vasconcelos de Lima  
+
 ## Resultado do tempo final da simulação
 
 A simulação base terminou no minuto 3270, com o avião 102 finalizando a decolagem.
